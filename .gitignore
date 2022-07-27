@@ -1,1 +1,3 @@
 checkpoint/
+model/__pycache__/
+test/
