@@ -96,7 +96,7 @@ class Dataloader(object):
         return left_image_batch, disp_image_batch, gt_image_batch
 
     def read_image(self, image_path, shape=None, dtype=tf.uint8):
-        image_raw = tf.read_file(image_path)
+        image_raw = tf.io.read_file(image_path)
         if dtype == tf.uint8:
             image = tf.image.decode_image(image_raw)
         else:

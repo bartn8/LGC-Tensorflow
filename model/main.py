@@ -33,7 +33,7 @@ parser.add_argument('--output_path', dest='output_path', type=str, default='../o
 args = parser.parse_args()
 
 def main(_):
-    with tf.Session() as sess:
+    with tf.compat.v1.Session() as sess:
         model = LGC(sess,
                      is_training=args.is_training,
                      epoch=args.epoch,

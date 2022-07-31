@@ -51,24 +51,24 @@ class LGC(object):
     def build_model(self):
         if self.is_training=='True': #train
             if self.model == 'LFN' or self.model == 'CNN' or self.model == 'EFN':
-                self.left = tf.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 3], name='left')
-                self.disp = tf.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='disparity')
-                self.gt = tf.placeholder(tf.float32, [self.batch_size, 1, 1, 1], name='gt')
+                self.left = tf.compat.v1.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 3], name='left')
+                self.disp = tf.compat.v1.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='disparity')
+                self.gt = tf.compat.v1.placeholder(tf.float32, [self.batch_size, 1, 1, 1], name='gt')
             elif self.model == 'ConfNet':
                 self.left, self.disp, self.gt = self.dataloader.get_crops(self.crop_height, self.crop_width, self.batch_size)
             else:
                 self.left_full = tf.expand_dims(self.dataloader.left, 0)
                 self.disp_full = tf.expand_dims(self.dataloader.disp, 0)
-                self.left = tf.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 3], name='left')
-                self.disp = tf.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='disparity')
-                self.glob = tf.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='global')
-                self.local = tf.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='local')
-                self.gt = tf.placeholder(tf.float32, [self.batch_size, 1, 1, 1], name='gt')
+                self.left = tf.compat.v1.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 3], name='left')
+                self.disp = tf.compat.v1.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='disparity')
+                self.glob = tf.compat.v1.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='global')
+                self.local = tf.compat.v1.placeholder(tf.float32, [self.batch_size, self.patch_size, self.patch_size, 1], name='local')
+                self.gt = tf.compat.v1.placeholder(tf.float32, [self.batch_size, 1, 1, 1], name='gt')
         else: #test
-            self.left = tf.placeholder(tf.float32, name='left')
-            self.disp = tf.placeholder(tf.float32, name='disparity')
+            self.left = tf.compat.v1.placeholder(tf.float32, name='left')
+            self.disp = tf.compat.v1.placeholder(tf.float32, name='disparity')
 
-        self.learning_rate = tf.placeholder(tf.float32, shape=[])
+        self.learning_rate = tf.compat.v1.placeholder(tf.float32, shape=[])
         
         {'CCNN': self.EFN, 
          'EFN':  self.EFN,
@@ -95,26 +95,26 @@ class LGC(object):
             else:
                 model_input = self.disp
 
-        with tf.variable_scope('CCNN'):
-            with tf.variable_scope("conv1"):
+        with tf.compat.v1.variable_scope('CCNN'):
+            with tf.compat.v1.variable_scope("conv1"):
                 conv1 = ops.conv2d(model_input, [kernel_size, kernel_size, nchannels, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("conv2"):
+            with tf.compat.v1.variable_scope("conv2"):
                 conv2 = ops.conv2d(conv1, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("conv3"):
+            with tf.compat.v1.variable_scope("conv3"):
                 conv3 = ops.conv2d(conv2, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("conv4"):
+            with tf.compat.v1.variable_scope("conv4"):
                 conv4 = ops.conv2d(conv3, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("fully_connected_1"):
+            with tf.compat.v1.variable_scope("fully_connected_1"):
                 fc1 = ops.conv2d(conv4, [1, 1, filters, fc_filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("fully_connected_2"):
+            with tf.compat.v1.variable_scope("fully_connected_2"):
                 fc2 = ops.conv2d(fc1, [1, 1, fc_filters, fc_filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("prediction"):
+            with tf.compat.v1.variable_scope("prediction"):
                 if self.model == 'LGC':
                     self.local_prediction = tf.nn.sigmoid(ops.conv2d(fc2, [1, 1, fc_filters, 1], 1, False, padding='VALID'))
                 else:
@@ -135,40 +135,40 @@ class LGC(object):
             model_input_disp = self.disp
             model_input_left = self.left
 
-        with tf.variable_scope('LFN'):
-            with tf.variable_scope('disparity'):
-                with tf.variable_scope("conv1"):
+        with tf.compat.v1.variable_scope('LFN'):
+            with tf.compat.v1.variable_scope('disparity'):
+                with tf.compat.v1.variable_scope("conv1"):
                     conv1_disp = ops.conv2d(model_input_disp, [kernel_size, kernel_size, 1, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv2"):
+                with tf.compat.v1.variable_scope("conv2"):
                     conv2_disp = ops.conv2d(conv1_disp, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv3"):
+                with tf.compat.v1.variable_scope("conv3"):
                     conv3_disp = ops.conv2d(conv2_disp, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv4"):
+                with tf.compat.v1.variable_scope("conv4"):
                     conv4_disp = ops.conv2d(conv3_disp, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope('RGB'):
-                with tf.variable_scope("conv1"):
+            with tf.compat.v1.variable_scope('RGB'):
+                with tf.compat.v1.variable_scope("conv1"):
                     conv1_left = ops.conv2d(model_input_left, [kernel_size, kernel_size, 3, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv2"):
+                with tf.compat.v1.variable_scope("conv2"):
                     conv2_left = ops.conv2d(conv1_left, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv3"):
+                with tf.compat.v1.variable_scope("conv3"):
                     conv3_left = ops.conv2d(conv2_left, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv4"):
+                with tf.compat.v1.variable_scope("conv4"):
                     conv4_left = ops.conv2d(conv3_left, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("fully_connected_1"):
+            with tf.compat.v1.variable_scope("fully_connected_1"):
                 fc1 = ops.conv2d(tf.concat([conv4_left, conv4_disp], axis=3), [1, 1, 2 * filters, fc_filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("fully_connected_2"):
+            with tf.compat.v1.variable_scope("fully_connected_2"):
                 fc2 = ops.conv2d(fc1, [1, 1, fc_filters, fc_filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("prediction"):
+            with tf.compat.v1.variable_scope("prediction"):
                 if self.model == 'LGC':
                     self.local_prediction = tf.nn.sigmoid(ops.conv2d(fc2, [1, 1, fc_filters, 1], 1, False, padding='VALID'))
                 else:
@@ -188,54 +188,54 @@ class LGC(object):
         model_input_disp = self.disp
         model_input_local, model_input_global = (self.local, self.glob) if self.is_training == 'True' else (self.local_prediction, self.global_prediction)
 
-        with tf.variable_scope('LGC'):
-            with tf.variable_scope('disparity'):
+        with tf.compat.v1.variable_scope('LGC'):
+            with tf.compat.v1.variable_scope('disparity'):
 
-                with tf.variable_scope("conv1"):
+                with tf.compat.v1.variable_scope("conv1"):
                     conv1_disp = ops.conv2d(model_input_disp, [kernel_size, kernel_size, 1, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv2"):
+                with tf.compat.v1.variable_scope("conv2"):
                     conv2_disp = ops.conv2d(conv1_disp, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv3"):
+                with tf.compat.v1.variable_scope("conv3"):
                     conv3_disp = ops.conv2d(conv2_disp, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv4"):
+                with tf.compat.v1.variable_scope("conv4"):
                     conv4_disp = ops.conv2d(conv3_disp, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope('local'):
-                with tf.variable_scope("conv1"):
+            with tf.compat.v1.variable_scope('local'):
+                with tf.compat.v1.variable_scope("conv1"):
                     conv1_local = ops.conv2d(model_input_local*scale, [kernel_size, kernel_size, 1, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv2"):
+                with tf.compat.v1.variable_scope("conv2"):
                     conv2_local = ops.conv2d(conv1_local, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv3"):
+                with tf.compat.v1.variable_scope("conv3"):
                     conv3_local = ops.conv2d(conv2_local, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv4"):
+                with tf.compat.v1.variable_scope("conv4"):
                     conv4_local = ops.conv2d(conv3_local, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope('global'):
-                with tf.variable_scope("conv1"):
+            with tf.compat.v1.variable_scope('global'):
+                with tf.compat.v1.variable_scope("conv1"):
                     conv1_global = ops.conv2d(model_input_global*scale, [kernel_size, kernel_size, 1, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv2"):
+                with tf.compat.v1.variable_scope("conv2"):
                     conv2_global = ops.conv2d(conv1_global, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv3"):
+                with tf.compat.v1.variable_scope("conv3"):
                     conv3_global = ops.conv2d(conv2_global, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-                with tf.variable_scope("conv4"):
+                with tf.compat.v1.variable_scope("conv4"):
                     conv4_global = ops.conv2d(conv3_global, [kernel_size, kernel_size, filters, filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("fully_connected_1"):             
+            with tf.compat.v1.variable_scope("fully_connected_1"):             
                 fc1 = ops.conv2d(tf.concat([conv4_global, conv4_local, conv4_disp], axis=3), [1, 1, 3 * filters, fc_filters], 1, True, padding='VALID')
 
-            with tf.variable_scope("fully_connected_2"):
+            with tf.compat.v1.variable_scope("fully_connected_2"):
                 fc2 = ops.conv2d(fc1, [1, 1, fc_filters, fc_filters], 1, True, padding='VALID')
                 
-            with tf.variable_scope("prediction"):
+            with tf.compat.v1.variable_scope("prediction"):
                 self.prediction = ops.conv2d(fc2, [1, 1, fc_filters, 1], 1, False, padding='VALID')
 
     def ConfNet(self):
@@ -251,13 +251,13 @@ class LGC(object):
             left = self.left_full
             disp = self.disp_full
 
-        with tf.variable_scope('ConfNet'):
-            with tf.variable_scope('RGB'):
-                with tf.variable_scope("conv1"):
+        with tf.compat.v1.variable_scope('ConfNet'):
+            with tf.compat.v1.variable_scope('RGB'):
+                with tf.compat.v1.variable_scope("conv1"):
                     self.conv1_RGB = ops.conv2d(left, [kernel_size, kernel_size, 3, filters], 1, True, padding='SAME')
                                     
-            with tf.variable_scope('disparity'):  
-                with tf.variable_scope("conv1"):
+            with tf.compat.v1.variable_scope('disparity'):  
+                with tf.compat.v1.variable_scope("conv1"):
                     self.conv1_disparity = ops.conv2d(disp, [kernel_size, kernel_size, 1, filters], 1, True, padding='SAME')
             
             model_input = tf.concat([self.conv1_RGB, self.conv1_disparity], axis=3)
@@ -278,7 +278,7 @@ class LGC(object):
                 self.prediction = ops.conv2d(self.net8, [kernel_size, kernel_size, filters, 1], 1, False, padding='SAME')
 
     def build_losses(self):
-        with tf.variable_scope('loss'):
+        with tf.compat.v1.variable_scope('loss'):
             if self.model == 'ConfNet':
                 self.mask = tf.cast(tf.not_equal(self.gt, 0.0), dtype=tf.float32)
                 self.labels = tf.cast(tf.abs(tf.subtract(self.gt, self.disp)) <= self.threshold, dtype=tf.float32)
@@ -302,7 +302,7 @@ class LGC(object):
 
         self.vars = tf.all_variables()
         self.optimizer = tf.train.GradientDescentOptimizer(self.learning_rate).minimize(self.loss, var_list=self.vars)
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
         self.summary_op = tf.summary.merge_all(self.model_collection[0])
         self.writer = tf.summary.FileWriter(args.log_directory + "/summary/", graph=self.sess.graph)
 
@@ -311,8 +311,8 @@ class LGC(object):
             total_num_parameters += np.array(variable.get_shape().as_list()).prod()
         print(" [*] Number of trainable parameters: {}".format(total_num_parameters))
 
-        self.sess.run(tf.global_variables_initializer())
-        self.sess.run(tf.local_variables_initializer())
+        self.sess.run(tf.compat.v1.global_variables_initializer())
+        self.sess.run(tf.compat.v1.local_variables_initializer())
 
         print(' [*] Loading training set...')
         patches_left, patches_disp, patches_gt = self.dataloader.get_patches(self.patch_size, self.threshold)
@@ -365,7 +365,7 @@ class LGC(object):
             os.makedirs(args.log_directory)
 
         self.optimizer = tf.train.GradientDescentOptimizer(self.learning_rate).minimize(self.loss, var_list=tf.all_variables())
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
         self.summary_op = tf.summary.merge_all(self.model_collection[0])
         self.writer = tf.summary.FileWriter(args.log_directory + "/summary/", graph=self.sess.graph)
 
@@ -374,8 +374,8 @@ class LGC(object):
             total_num_parameters += np.array(variable.get_shape().as_list()).prod()
         print(" [*] Number of trainable parameters: {}".format(total_num_parameters))
 
-        self.sess.run(tf.global_variables_initializer())
-        self.sess.run(tf.local_variables_initializer())
+        self.sess.run(tf.compat.v1.global_variables_initializer())
+        self.sess.run(tf.compat.v1.local_variables_initializer())
 
         print(' [*] Loading training set...')
         line = self.dataloader.disp_filename
@@ -421,9 +421,9 @@ class LGC(object):
         self.vars_local =  [k for k in self.vars if (k.name.startswith('CCNN') or k.name.startswith('LFN'))]
         self.vars_lgc = [k for k in self.vars if k.name.startswith('LGC')]
 
-        self.saver_global = tf.train.Saver(self.vars_global)
-        self.saver_local = tf.train.Saver(self.vars_local)
-        self.saver = tf.train.Saver(self.vars_lgc)
+        self.saver_global = tf.compat.v1.train.Saver(self.vars_global)
+        self.saver_local = tf.compat.v1.train.Saver(self.vars_local)
+        self.saver = tf.compat.v1.train.Saver(self.vars_lgc)
 
         self.summary_op = tf.summary.merge_all(self.model_collection[0])
         self.writer = tf.summary.FileWriter(args.log_directory + "/summary/", graph=self.sess.graph)
@@ -433,8 +433,8 @@ class LGC(object):
             total_num_parameters += np.array(variable.get_shape().as_list()).prod()
         print(" [*] Number of trainable parameters: {}".format(total_num_parameters))
 
-        self.sess.run(tf.global_variables_initializer())
-        self.sess.run(tf.local_variables_initializer())
+        self.sess.run(tf.compat.v1.global_variables_initializer())
+        self.sess.run(tf.compat.v1.local_variables_initializer())
 
         self.optimizer = tf.train.GradientDescentOptimizer(self.learning_rate).minimize(self.loss, var_list=self.vars_lgc)
 
@@ -508,8 +508,8 @@ class LGC(object):
         if not os.path.exists(args.output_path):
             os.makedirs(args.output_path)
 
-        self.sess.run(tf.global_variables_initializer())
-        self.sess.run(tf.local_variables_initializer())
+        self.sess.run(tf.compat.v1.global_variables_initializer())
+        self.sess.run(tf.compat.v1.local_variables_initializer())
 
         if self.model == 'LGC':
             self.vars = tf.all_variables()
@@ -517,9 +517,9 @@ class LGC(object):
             self.vars_local = [k for k in self.vars if (k.name.startswith('CCNN') or k.name.startswith('LFN')) ]
             self.vars_lgc = [k for k in self.vars if k.name.startswith('LGC')]
 
-            self.saver_global = tf.train.Saver(self.vars_global)
-            self.saver_local = tf.train.Saver(self.vars_local)
-            self.saver_LGC = tf.train.Saver(self.vars_lgc)
+            self.saver_global = tf.compat.v1.train.Saver(self.vars_global)
+            self.saver_local = tf.compat.v1.train.Saver(self.vars_local)
+            self.saver_LGC = tf.compat.v1.train.Saver(self.vars_lgc)
 
             if args.checkpoint_path[0] and args.checkpoint_path[1] and args.checkpoint_path[2]:
                 self.saver_global.restore(self.sess, args.checkpoint_path[0])
@@ -532,7 +532,7 @@ class LGC(object):
                 print(" [*] End Testing...")
                 raise ValueError('args.checkpoint_path[0] or args.checkpoint_path[1] or args.checkpoint_path[2] is None')
         else:
-            self.saver = tf.train.Saver()
+            self.saver = tf.compat.v1.train.Saver()
 
             if args.checkpoint_path:
                 self.saver.restore(self.sess, args.checkpoint_path[0])
@@ -562,6 +562,7 @@ class LGC(object):
                 val_disp, hpad, wpad = ops.pad(batch_disp)
                 val_left, _, _ = ops.pad(batch_left)
 
+            filename = filename.decode('UTF-8')
             print(" [*] Test image:" + filename)
             start = time.time()
             if self.model == 'ConfNet' or self.model == 'LGC':
