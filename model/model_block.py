@@ -26,6 +26,7 @@ class LGCBlock(object):
     def dispose(self):
         if not self.disposed:
             self.sess.close()
+            tf.compat.v1.reset_default_graph()
             self.disposed = True
 
     def log(self, x):
