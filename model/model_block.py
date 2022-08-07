@@ -9,7 +9,9 @@ ops = importlib.import_module("LGC-Tensorflow.model.ops")
 
 class LGCBlock(object):
 
-    def __init__(self, late_fusion, patch_size=9, model='LGC', verbose=False):                  
+    def __init__(self, late_fusion, patch_size=9, model='LGC', verbose=False):       
+        #session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+        #self.sess = tf.compat.v1.Session(config=session_conf)
         self.sess = tf.compat.v1.Session()
         self.disposed = False
         self.patch_size = patch_size
@@ -283,6 +285,7 @@ class LGCBlock(object):
                 self.saver_global.restore(self.sess, checkpoint_path[0])
                 self.saver_local.restore(self.sess, checkpoint_path[1])
                 self.saver_LGC.restore(self.sess, checkpoint_path[2])
+                self.log(" [*] Load model: SUCCESS")
             else:
                 self.log(" [*] Load failed...neglected")
                 self.log(" [*] End Testing...")
