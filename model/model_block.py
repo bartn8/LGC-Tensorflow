@@ -5,17 +5,17 @@ import importlib
 ops = importlib.import_module("LGC-Tensorflow.model.ops")
 #import ops
 
-#import numpy as np
+import numpy as np
 
 class LGCBlock(object):
 
-    def __init__(self, late_fusion, patch_size=9, model='LGC', verbose=False):       
+    def __init__(self, late_fusion, model='LGC', verbose=False):       
         #session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
         #self.sess = tf.compat.v1.Session(config=session_conf)
         self.sess = tf.compat.v1.Session()
         self.disposed = False
-        self.patch_size = patch_size
-        self.radius = int(patch_size/2)
+        self.patch_size = 9
+        self.radius = int(self.patch_size/2)
         self.model = model
         self.late_fusion = late_fusion
         self.logName = "LGC Block"
@@ -169,7 +169,7 @@ class LGCBlock(object):
         fc_filters = 100
         scale=255.0
 
-        self.LFN() if self.late_fusion else self.EFN() 
+        self.LFN()
         self.ConfNet()
 
         model_input_disp = self.disp
@@ -326,9 +326,12 @@ class LGCBlock(object):
             confidence = self.sess.run(prediction, feed_dict={self.left: left, self.disp: disp})
         current = time.time()
 
-        #myConfidence = (confidence[0] * 255.0).astype('uint8')
-        #myConfidence = (confidence[0] * 65535.0).astype('uint16')
-        myConfidence = (confidence[0]).astype('float32')
+        c = confidence[0]
+        c = (c - np.min(c)) / (np.max(c) - np.min(c))
+
+        #myConfidence = (c * 255.0).astype('uint8')
+        #myConfidence = (c] * 65535.0).astype('uint16')
+        myConfidence = (c).astype('float32')
         self.log(" [*] Inference time:" + str(current - start) + "s")
 
         return myConfidence
