@@ -2,7 +2,7 @@ import tensorflow as tf
 import time
 
 import importlib
-ops = importlib.import_module("LGC-Tensorflow.model.ops")
+ops = importlib.import_module("thirdparty.LGC-Tensorflow.model.ops")
 #import ops
 
 import numpy as np
